@@ -24,13 +24,22 @@ public:
 	void undo();
 
 private:
+	struct Coord
+	{
+		int m_row;
+		int m_col;
+	};
+
 		// Data Members
 	std::list<std::list<char>> m_text;
 	std::list<std::list<char>>::iterator m_curPos;
 	int m_totalLines;	// Is initialization 1 or 0 lines
 
 		// Functions
-	std::list<std::list<char>>::iterator getFirstPos();
+	std::list<std::list<char>>::iterator const getFirstPos();	// Might cause const issue
+	int getCurRow() const;
+	int getCurCol() const;
+
 };
 
 #endif // STUDENTTEXTEDITOR_H_
