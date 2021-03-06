@@ -24,9 +24,6 @@ public:
 	int getLines(int startRow, int numRows, std::vector<std::string>& lines) const;
 	void undo();
 
-	// testing func //
-	//remove when done//
-std::list<std::string> getText() { return m_text; }
 private:
 	// (0,0) top left
 	struct Coord
@@ -37,8 +34,6 @@ private:
 	};
 
 		// Data Members
-	//std::list<std::list<char>> m_text;
-	//std::list<std::list<char>>::iterator m_curPosPtr;
 	std::list<std::string> m_text;
 	std::list<std::string>::iterator m_curPosPtr;
 	Coord m_curPos;
@@ -53,6 +48,23 @@ private:
 	void setCurCol(int pos) { m_curPos.m_col = pos; };
 	int getCurRow() const { return m_curPos.m_row; };
 	int getCurCol() const { return m_curPos.m_col; };
+	void executeUpDownEdgeCase(int curCol);
+	Coord getLastPositionOfText();
 };
+
+inline
+StudentTextEditor::Coord StudentTextEditor::getLastPositionOfText()
+{
+	auto lastLine = --m_text.end();
+	return Coord((*lastLine).size(), m_text.size());		// pos just past end of last line
+}
+
+inline
+void StudentTextEditor::executeUpDownEdgeCase(int curCol)
+{
+	int newEndSize = (*m_curPosPtr).size();
+	if (curCol >= newEndSize)
+		setCurCol(newEndSize);
+}
 
 #endif // STUDENTTEXTEDITOR_H_

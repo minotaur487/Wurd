@@ -105,6 +105,8 @@ void StudentTextEditor::move(Dir dir) {
 			return;
 		incrementCurRow(-1);
 		m_curPosPtr--;
+		int cCol = getCurCol();
+		executeUpDownEdgeCase(cCol);
 		break;
 	}
 	case DOWN:
@@ -113,12 +115,13 @@ void StudentTextEditor::move(Dir dir) {
 			return;
 		m_curPosPtr++;
 		incrementCurRow(1);
+		int cCol = getCurCol();
+		executeUpDownEdgeCase(cCol);
 		break;
 	}
 	case RIGHT:
 	{
-		auto lastLine = --m_text.end();
-		if (cRow == m_text.size() && cCol == (*lastLine).size())
+		if (cRow == getLastPositionOfText().m_row && cCol == getLastPositionOfText().m_col)
 			return;
 		if (cCol == (*m_curPosPtr).size())
 		{
@@ -184,10 +187,32 @@ void StudentTextEditor::insert(char ch) {
 // O(L) where L is the length of the line of text.
 // Command must not have a runtime that depends on the num of lines being edited
 void StudentTextEditor::enter() {
-	// break line
-	insert('\n');
+	// If current editing pos is just past end of last line, add a new empty line
+	if (getCurRow() == getLastPositionOfText().m_row && getCurCol() == getLastPositionOfText().m_col)
+	{
+		m_text.push_back("\n");
+		m_totalLines++;
+		m_curPosPtr++;
 // PUSH \n INTO UNDO									!!!
+	}
+	else if (getCurCol() == 0)
+	{
+		m_text.insert(m_curPosPtr, "\n");
+		m_totalLines++;
+// PUSH \n INTO UNDO									!!!
+	}
+	else
+	{
+		// Split text
+		int size = (*m_curPosPtr).size();		// O(1) I think
+		string s1 = (*m_curPosPtr).substr(0, getCurCol());		// O(L)
+		string s2 = (*m_curPosPtr).substr(getCurCol());		// O(L)
 
+		// Split lines
+		m_text.insert(m_curPosPtr, s1);
+		(*m_curPosPtr) = s2;
+// PUSH \n INTO UNDO									!!!
+	}
 	// shift down
 	incrementCurRow(1);
 	setCurCol(0);
