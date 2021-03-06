@@ -104,12 +104,14 @@ void StudentTextEditor::move(Dir dir) {
 		if (cRow == 0)
 			return;
 		incrementCurRow(-1);
+		m_curPosPtr--;
 		break;
 	}
 	case DOWN:
 	{
 		if (cRow == m_text.size())
 			return;
+		m_curPosPtr++;
 		incrementCurRow(1);
 		break;
 	}
@@ -221,7 +223,7 @@ int StudentTextEditor::getLines(int startRow, int numRows, std::vector<std::stri
 	{
 		while (counter != diff)
 		{
-			it--;
+			it++;
 			counter--;
 		}
 	}
@@ -229,7 +231,7 @@ int StudentTextEditor::getLines(int startRow, int numRows, std::vector<std::stri
 	{
 		while (counter != diff)
 		{
-			it++;
+			it--;
 			counter++;
 		}
 	}
