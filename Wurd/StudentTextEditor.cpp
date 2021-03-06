@@ -161,7 +161,21 @@ void StudentTextEditor::move(Dir dir) {
 }
 
 void StudentTextEditor::del() {
-	// TODO
+	int cCol = getCurCol();
+	if (cCol == (*m_curPosPtr).size())
+	{
+		auto it = m_curPosPtr;
+		it++;
+		(*m_curPosPtr) += (*it);
+		m_text.erase(it);
+		m_totalLines--;
+// PUSH INTO UNDO									!!!
+	}
+	else if (cCol == getLastPositionOfText().m_col && getCurRow() == getLastPositionOfText().m_row)
+		return;
+	else
+		(*m_curPosPtr).erase(getCurCol(), 1);
+// PUSH INTO UNDO									!!!
 }
 
 void StudentTextEditor::backspace() {

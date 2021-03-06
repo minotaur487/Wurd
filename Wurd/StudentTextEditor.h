@@ -40,23 +40,27 @@ private:
 	int m_totalLines;	// Is initialization 1 or 0 lines
 
 
-		// Functions
-	void setFirstPos() { m_curPosPtr = m_text.begin(); };
+		// Functions that do
+	void setFirstPos() { m_curPosPtr = m_text.begin(); }
 	void incrementCurRow(int spots) { m_curPos.m_row += spots; }
 	void incrementCurCol(int spots) { m_curPos.m_col += spots; }
-	void setCurRow(int pos) { m_curPos.m_row = pos; };
-	void setCurCol(int pos) { m_curPos.m_col = pos; };
-	int getCurRow() const { return m_curPos.m_row; };
-	int getCurCol() const { return m_curPos.m_col; };
+	void setCurRow(int pos) { m_curPos.m_row = pos; }
+	void setCurCol(int pos) { m_curPos.m_col = pos; }
 	void executeUpDownEdgeCase(int curCol);
-	Coord getLastPositionOfText();
+
+		// Functions that get
+	int getCurRow() const { return m_curPos.m_row; }
+	int getCurCol() const { return m_curPos.m_col; }
+	Coord getLastPositionOfText() const;
 };
 
 inline
-StudentTextEditor::Coord StudentTextEditor::getLastPositionOfText()
+StudentTextEditor::Coord StudentTextEditor::getLastPositionOfText() const
 {
 	auto lastLine = --m_text.end();
-	return Coord((*lastLine).size(), m_text.size());		// pos just past end of last line
+	int totalLines = m_text.size();
+	int lengthOfLastLine = (*lastLine).size();
+	return Coord(lengthOfLastLine, totalLines - 1);		// pos just past end of last line
 }
 
 inline
