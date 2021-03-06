@@ -166,20 +166,43 @@ void StudentTextEditor::del() {
 	{
 		auto it = m_curPosPtr;
 		it++;
-		(*m_curPosPtr) += (*it);
-		m_text.erase(it);
+		(*m_curPosPtr) += (*it);	// O(L1 + L2)
+		m_text.erase(it);			// O(L2)
 		m_totalLines--;
 // PUSH INTO UNDO									!!!
 	}
 	else if (cCol == getLastPositionOfText().m_col && getCurRow() == getLastPositionOfText().m_row)
 		return;
 	else
-		(*m_curPosPtr).erase(getCurCol(), 1);
+		(*m_curPosPtr).erase(getCurCol(), 1);		// O(L)
 // PUSH INTO UNDO									!!!
 }
 
 void StudentTextEditor::backspace() {
-	// TODO
+	int cCol = getCurCol();
+	if (cCol == 0 || (*m_curPosPtr).empty())
+	{
+		if (getCurRow() == 0)
+			return;
+
+		// set editing position to end of previous line
+		auto it = m_curPosPtr;
+		m_curPosPtr--;
+		setCurCol((*m_curPosPtr).size());
+		incrementCurRow(-1);
+
+		// merge lines
+		(*m_curPosPtr) += (*it);	// O(L2 + L1)
+		m_text.erase(it);			// O(L1)
+		m_totalLines--;
+// PUSH INTO UNDO									!!!
+	}
+	else if (cCol > 0)
+	{
+		(*m_curPosPtr).erase(getCurCol() - 1, 1);		// O(L)
+		incrementCurCol(-1);
+	}
+// PUSH INTO UNDO									!!!
 }
 
 // O(L) where L is the length of the line of text containing the current editing position
