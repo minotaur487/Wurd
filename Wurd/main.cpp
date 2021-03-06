@@ -22,4 +22,4 @@ int main(int argc, char* argv[]) {
 		editor.loadFileToEdit(argv[1]);
 	}
 	editor.run();
-}       
+}

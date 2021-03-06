@@ -19,10 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="StudentTextEditor.cpp" />
     <ClCompile Include="StudentUndo.cpp" />
     <ClCompile Include="StudentSpellCheck.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="tester.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StudentTextEditor.h" />

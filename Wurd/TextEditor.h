@@ -23,7 +23,7 @@ public:
 	virtual void backspace() = 0;
 	virtual void move(Dir dir) = 0;
 	virtual void getPos(int& row, int& col) const = 0;
-	virtual void getLines(int startRow, int numRows, std::vector<std::string>& lines) const = 0;
+	virtual int getLines(int startRow, int numRows, std::vector<std::string>& lines) const = 0;
 	virtual void undo() = 0;
 
 protected:

@@ -3,31 +3,95 @@
 #include <string>
 #include <vector>
 
+#include <list>
+#include <fstream>
+#include <iostream>
+using namespace std;
+
 TextEditor* createTextEditor(Undo* un)
 {
 	return new StudentTextEditor(un);
 }
 
+// O(1)
 StudentTextEditor::StudentTextEditor(Undo* undo)
- : TextEditor(undo) {
-	// TODO
+ : TextEditor(undo), m_curPos(Coord(0,0))
+{
+	m_curPosPtr = m_text.begin();
+	m_totalLines = 1;
 }
 
+// O(N) time where N is the number of lines in the file currently being edited.
+// I believe destructing an std linked list is O(N)
 StudentTextEditor::~StudentTextEditor()
 {
 	// TODO
 }
 
+// loads but I can't tell if the carriage return character is removed							!!!
+// I think getLines is supposed to result in the displace but I am not sure						!!!
+// O(M+N) M is num of lines in editor currently and N is num of lines in new file being loaded
 bool StudentTextEditor::load(std::string file) {
-	return false;  // TODO
+	ifstream infile(file);
+	// Should go through whole document
+	if (!infile)
+	{
+		cerr << "Bad state, file can't load" << endl;
+		return false;
+	}
+	{
+		// reset existing file, check if i have to do this if new
+		reset();
+
+		// load text ... should be O(N)
+		string line;
+		while (getline(infile, line))	// getline returns infile
+		{
+			int size = line.size();
+			if (size != 0 && line[size - 2] == '\r')	// Avoid deleting because I have to iterate there and erasing reinitializes a vector?
+			{
+				line[size - 2] = '\n';	// See if I get this right			!!!
+				line[size - 2] = '\0';	// See if I get this right			!!!
+			}
+			m_text.push_back(line);
+			m_totalLines++;
+		}
+
+		// should be O(M)
+		setFirstPos();
+		setCurCol(0);
+		setCurRow(0);
+		return true;
+	}
 }
 
+// O(M) M is num of lines in editor
 bool StudentTextEditor::save(std::string file) {
-	return false;  // TODO
+	ofstream outfile(file);
+	if (!outfile)
+	{
+		cerr << "New file can't be created" << endl;
+		return false;
+	}
+	else
+	{
+		for (auto line : m_text)		// DUNNO IF I'M DOING THIS RIGHT?			!!!
+		{
+			outfile << line << '\n';
+		}
+		return true;
+	}
 }
 
+// O(N) N number of rows being edited
 void StudentTextEditor::reset() {
-	// TODO
+	// O(N)
+	while (!m_text.empty())
+		m_text.pop_back();
+	setFirstPos();
+	setCurCol(0);
+	setCurRow(0);
+	getUndo()->clear();
 }
 
 void StudentTextEditor::move(Dir dir) {
@@ -42,12 +106,36 @@ void StudentTextEditor::backspace() {
 	// TODO
 }
 
+// O(L) where L is the length of the line of text containing the current editing position
 void StudentTextEditor::insert(char ch) {
-	// TODO
+	string in;
+	if (ch == '\t')
+	{
+		in = "    ";
+		incrementCurCol(4);
+		for (int i = 0; i < 4; i++)
+			m_curPosPtr++;
+	}
+	else
+	{
+		in = to_string(ch);
+		incrementCurCol(1);
+		m_curPosPtr++;
+	}
+	(*m_curPosPtr).insert(getCurCol(), in);
+// PUSH CH INTO UNDO									!!!
 }
 
+// O(L) where L is the length of the line of text.
+// Command must not have a runtime that depends on the num of lines being edited
 void StudentTextEditor::enter() {
-	// TODO
+	// break line
+	insert('\n');
+// PUSH \n INTO UNDO									!!!
+
+	// shift down
+	incrementCurRow(1);
+	setCurCol(0);
 }
 
 void StudentTextEditor::getPos(int& row, int& col) const {
@@ -56,6 +144,7 @@ void StudentTextEditor::getPos(int& row, int& col) const {
 
 int StudentTextEditor::getLines(int startRow, int numRows, std::vector<std::string>& lines) const {
 	// TODO
+	return -1;
 }
 
 void StudentTextEditor::undo() {
