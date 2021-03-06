@@ -167,21 +167,17 @@ void StudentTextEditor::backspace() {
 
 // O(L) where L is the length of the line of text containing the current editing position
 void StudentTextEditor::insert(char ch) {
-	string in;
 	if (ch == '\t')
 	{
-		in = "    ";
+		string in = "    ";
+		(*m_curPosPtr).insert(getCurCol(), in);
 		incrementCurCol(4);
-		for (int i = 0; i < 4; i++)
-			m_curPosPtr++;
 	}
 	else
 	{
-		in = to_string(ch);
+		(*m_curPosPtr).insert(getCurCol(), 1, ch);
 		incrementCurCol(1);
-		m_curPosPtr++;
 	}
-	(*m_curPosPtr).insert(getCurCol(), in);
 // PUSH CH INTO UNDO									!!!
 }
 
