@@ -45,13 +45,12 @@ bool StudentTextEditor::load(std::string file) {
 
 		// load text ... should be O(N)
 		string line;
-		while (getline(infile, line))	// getline returns infile
+		while (getline(infile, line))	// getline returns infile and has a deliminator of \n
 		{
 			int size = line.size();
 			if (size != 0 && line[size - 2] == '\r')	// Avoid deleting because I have to iterate there and erasing reinitializes a vector?
 			{
-				line[size - 2] = '\n';	// See if I get this right			!!!
-				line[size - 2] = '\0';	// See if I get this right			!!!
+				line[size - 1] = '\0';	// See if I get this right			!!!
 			}
 			m_text.push_back(line);
 			m_totalLines++;
@@ -77,6 +76,7 @@ bool StudentTextEditor::save(std::string file) {
 	{
 		for (auto line : m_text)		// DUNNO IF I'M DOING THIS RIGHT?			!!!
 		{
+			// line[size - 1] = '\0';		// maybe this instead
 			outfile << line << '\n';
 		}
 		return true;
@@ -95,7 +95,64 @@ void StudentTextEditor::reset() {
 }
 
 void StudentTextEditor::move(Dir dir) {
-	// TODO
+	int cRow = getCurRow();
+	int cCol = getCurCol();
+	switch (dir)
+	{
+	case UP:
+	{
+		if (cRow == 0)
+			return;
+		incrementCurRow(-1);
+		break;
+	}
+	case DOWN:
+	{
+		if (cRow == m_text.size())
+			return;
+		incrementCurRow(1);
+		break;
+	}
+	case RIGHT:
+	{
+		auto lastLine = --m_text.end();
+		if (cRow == m_text.size() && cCol == (*lastLine).size())
+			return;
+		if (cCol == (*m_curPosPtr).size())
+		{
+			m_curPosPtr++;
+			incrementCurRow(1);
+			setCurCol(0);
+			return;
+		}
+		incrementCurCol(1);
+		break;
+	}
+	case LEFT:
+	{
+		if (cRow == 0 && cCol == 0)
+			return;
+		if (cCol == 0)
+		{
+			m_curPosPtr--;
+			incrementCurRow(-1);
+			setCurCol((*m_curPosPtr).size());
+			return;
+		}
+		incrementCurCol(-1);
+		break;
+	}
+	case HOME: 
+	{
+		setCurCol(0);
+		break;
+	}
+	case END:
+	{
+		setCurCol((*m_curPosPtr).size());
+		break;
+	}
+	}
 }
 
 void StudentTextEditor::del() {
@@ -139,12 +196,53 @@ void StudentTextEditor::enter() {
 }
 
 void StudentTextEditor::getPos(int& row, int& col) const {
-	// TODO
+	row = getCurRow();
+	col = getCurCol();
 }
 
 int StudentTextEditor::getLines(int startRow, int numRows, std::vector<std::string>& lines) const {
-	// TODO
-	return -1;
+	int size = m_text.size();
+	if (startRow < 0 || numRows < 0 || startRow > size)
+		return -1;
+
+	// clear vector lines values
+	lines.clear();	// O(lines.size())
+
+	if (startRow == size)
+		return 0;
+
+	// Get to startRow
+	int curRow = getCurRow();
+	int counter = 0;
+	int diff = curRow - startRow;
+	auto it = m_curPosPtr;
+	// O(abs(curRow - startRow)
+	if (diff < 0)
+	{
+		while (counter != diff)
+		{
+			it--;
+			counter--;
+		}
+	}
+	else if (diff > 0)
+	{
+		while (counter != diff)
+		{
+			it++;
+			counter++;
+		}
+	}
+
+	// Add lines
+	counter = 0;
+	while (counter != numRows && it != m_text.end())	// O(numRows * L) where L is avg line length
+	{
+		lines.push_back(*it);
+		it++;
+		counter++;
+	}
+	return counter;
 }
 
 void StudentTextEditor::undo() {

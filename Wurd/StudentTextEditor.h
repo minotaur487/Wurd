@@ -48,9 +48,7 @@ private:
 		// Functions
 	void setFirstPos() { m_curPosPtr = m_text.begin(); };
 	void incrementCurRow(int spots) { m_curPos.m_row += spots; }
-	void decrementCurRow(int spots) { m_curPos.m_row -= spots; }
 	void incrementCurCol(int spots) { m_curPos.m_col += spots; }
-	void decrementCurCol(int spots) { m_curPos.m_col -= spots; }
 	void setCurRow(int pos) { m_curPos.m_col = pos; };
 	void setCurCol(int pos) { m_curPos.m_col = pos; };
 	int getCurRow() const { return m_curPos.m_row; };
