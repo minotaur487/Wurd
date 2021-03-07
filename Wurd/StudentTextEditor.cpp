@@ -17,6 +17,7 @@ TextEditor* createTextEditor(Undo* un)
 StudentTextEditor::StudentTextEditor(Undo* undo)
  : TextEditor(undo), m_curPos(Coord(0,0))
 {
+	m_text.push_back("");		// deals with typing in waiting screen
 	m_curPosPtr = m_text.begin();
 	m_totalLines = 1;
 }
@@ -111,7 +112,7 @@ void StudentTextEditor::move(Dir dir) {
 	}
 	case DOWN:
 	{
-		if (cRow == m_text.size())
+		if (cRow == m_text.size() - 1)
 			return;
 		m_curPosPtr++;
 		incrementCurRow(1);
