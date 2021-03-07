@@ -246,7 +246,6 @@ void StudentTextEditor::enter() {
 	else
 	{
 		// Split text
-		int size = (*m_curPosPtr).size();		// O(1) I think
 		string s1 = (*m_curPosPtr).substr(0, getCurCol());		// O(L)
 		string s2 = (*m_curPosPtr).substr(getCurCol());		// O(L)
 
@@ -321,7 +320,7 @@ void StudentTextEditor::undo() {
 		setCurCol(col);
 		(*m_curPosPtr).insert(getCurCol(), text);
 		break;
-	case Undo::Action::DELETE:
+	case Undo::Action::DELETE:			// backspace and delete batching batch together...problem?			!!!
 	{
 		getToRow(row);
 		setCurCol(col);
@@ -346,13 +345,14 @@ void StudentTextEditor::undo() {
 		setCurCol(col);
 
 		// Split text
-		int size = (*m_curPosPtr).size();		// O(1) I think
 		string s1 = (*m_curPosPtr).substr(0, getCurCol());		// O(L)
 		string s2 = (*m_curPosPtr).substr(getCurCol());		// O(L)
 
 		// Split lines
-		m_text.insert(m_curPosPtr, s1);
-		(*m_curPosPtr) = s2;
+		auto it = m_curPosPtr;
+		it++;
+		m_text.insert(it, s2);
+		(*m_curPosPtr) = s1;
 		break;
 	}
 	case Undo::Action::ERROR:
