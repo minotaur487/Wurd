@@ -36,8 +36,8 @@ private:
 	};
 
 		// functions that do
-	void addToChanges(change& curBatch, char ch) { curBatch.m_changes += ch; }
-	void batchIfApplicable(change& newChange, char ch);
+	void addToChanges(change& curBatch, std::string& in) { curBatch.m_changes += in; }
+	bool batchIfApplicable(change& newChange);
 
 		// functions that get
 	int getChangeRow(const change& curChange) const { return curChange.m_row; }
@@ -50,24 +50,35 @@ private:
 };
 
 inline
-void StudentUndo::batchIfApplicable(StudentUndo::change& newChange, char ch)
+bool StudentUndo::batchIfApplicable(StudentUndo::change& newChange)
 {
 	if (!m_undoStack.empty())
 	{
 		change top = m_undoStack.top();
-		int colDiff = top.m_col - top.m_changes.size() - newChange.m_col;
+		int colInsertDiff = newChange.m_col - top.m_col;
+		int colBackspaceDiff = top.m_col - newChange.m_col;
 
-		if (top == newChange)
+		if (top.m_action == DELETE && newChange.m_action == DELETE && colBackspaceDiff == 1)
 		{
-			addToChanges(top, ch);	// O(L) where L is length of top.m_changes
-			return;
+			addToChanges(newChange, m_undoStack.top().m_changes);
+			m_undoStack.pop();
+			m_undoStack.push(newChange);
+			return true;
 		}
-		else if (newChange.m_action == INSERT && top.m_action == INSERT && colDiff == 0)
+		else if (top == newChange)
 		{
-			addToChanges(top, ch);	// O(L) where L is length of top.m_changes
-			return;
+			addToChanges(m_undoStack.top(), newChange.m_changes);
+			return true;
+		}
+		else if (newChange.m_action == INSERT && top.m_action == INSERT && colInsertDiff == 1)
+		{
+			addToChanges(newChange, m_undoStack.top().m_changes);
+			m_undoStack.pop();
+			m_undoStack.push(newChange);
+			return true;
 		}
 	}
+	return false;
 }
 
 #endif // STUDENTUNDO_H_

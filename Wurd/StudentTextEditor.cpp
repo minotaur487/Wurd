@@ -322,10 +322,12 @@ void StudentTextEditor::undo() {
 		(*m_curPosPtr).insert(getCurCol(), text);
 		break;
 	case Undo::Action::DELETE:
+	{
 		getToRow(row);
 		setCurCol(col);
-		(*m_curPosPtr).erase(getCurCol(), getCurCol() + count);		// O(L)
+		(*m_curPosPtr).erase(col, count);		// O(L)
 		break;
+	}
 	case Undo::Action::JOIN:
 	{
 		getToRow(row);

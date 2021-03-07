@@ -13,15 +13,17 @@ void StudentUndo::submit(const Action action, int row, int col, char ch)
 	switch (action)
 	{
 	// need to implement accounting for deleting and backspacing at end of line			!!!
-	case Action::DELETE:
+	case DELETE:
 	{
-		batchIfApplicable(newChange, ch);		// O(L) where L is length of top.m_changes
-		return;
+		if (batchIfApplicable(newChange))		// O(L) where L is length of top.m_changes
+			return;
+		break;
 	}
-	case Action::INSERT:
+	case INSERT:
 	{
-		batchIfApplicable(newChange, ch);	// O(L) where L is length of top.m_changes
-		return;
+		if (batchIfApplicable(newChange))	// O(L) where L is length of top.m_changes
+			return;
+		break;
 	}
 	}
 	m_undoStack.push(newChange);	// O(1)
@@ -31,18 +33,25 @@ void StudentUndo::submit(const Action action, int row, int col, char ch)
 StudentUndo::Action StudentUndo::get(int &row, int &col, int& count, std::string& text) 
 {
 	if (m_undoStack.empty())
-		return Action::ERROR;
+		return ERROR;
 
 	change top = m_undoStack.top();
-	row = top.m_row;
-	col = top.m_col;
-
-	if (top.m_action == Action::INSERT)
+	if (top.m_action == INSERT)
 		count = top.m_changes.size();
 	else
-		count = 1;			// for some reason, spec doesn't include batching of inserts?		!!!
+		count = 1;
 	
-	if (top.m_action == Action::DELETE)
+	row = top.m_row;
+	if (top.m_action == INSERT)		// row and column requirements sound contradictory ffs		!!!
+	{
+		col = top.m_col - count;
+	}
+	else
+	{
+		col = top.m_col;
+	}
+
+	if (top.m_action == DELETE)
 		text = top.m_changes;	// O(L)
 	else
 		text = "";
@@ -53,13 +62,13 @@ StudentUndo::Action StudentUndo::get(int &row, int &col, int& count, std::string
 	switch (top.m_action)
 	{
 	case INSERT:
-		return Action::DELETE;
+		return DELETE;
 	case DELETE:
-		return Action::INSERT;
+		return INSERT;
 	case SPLIT:
-		return Action::JOIN;
+		return JOIN;
 	case JOIN:
-		return Action::SPLIT;
+		return SPLIT;
 	}
 }
 
