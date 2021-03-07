@@ -169,13 +169,15 @@ void StudentTextEditor::del() {
 		(*m_curPosPtr) += (*it);	// O(L1 + L2)
 		m_text.erase(it);			// O(L2)
 		m_totalLines--;
-// PUSH INTO UNDO									!!!
+		getUndo()->submit(Undo::Action::JOIN, getCurRow(), cCol);
 	}
 	else if (cCol == getLastPositionOfText().m_col && getCurRow() == getLastPositionOfText().m_row)
 		return;
 	else
-		(*m_curPosPtr).erase(getCurCol(), 1);		// O(L)
-// PUSH INTO UNDO									!!!
+	{
+		getUndo()->submit(Undo::Action::DELETE, getCurRow(), cCol, (*m_curPosPtr)[cCol]);
+		(*m_curPosPtr).erase(cCol, 1);		// O(L)
+	}
 }
 
 void StudentTextEditor::backspace() {
@@ -195,14 +197,16 @@ void StudentTextEditor::backspace() {
 		(*m_curPosPtr) += (*it);	// O(L2 + L1)
 		m_text.erase(it);			// O(L1)
 		m_totalLines--;
-// PUSH INTO UNDO									!!!
+
+		getUndo()->submit(Undo::Action::JOIN, getCurRow(), getCurCol());
 	}
 	else if (cCol > 0)
 	{
-		(*m_curPosPtr).erase(getCurCol() - 1, 1);		// O(L)
+		getUndo()->submit(Undo::Action::DELETE, getCurRow(), cCol - 1, (*m_curPosPtr)[cCol - 1]);
+
+		(*m_curPosPtr).erase(cCol - 1, 1);		// O(L)
 		incrementCurCol(-1);
 	}
-// PUSH INTO UNDO									!!!
 }
 
 // O(L) where L is the length of the line of text containing the current editing position
@@ -212,31 +216,32 @@ void StudentTextEditor::insert(char ch) {
 		string in = "    ";
 		(*m_curPosPtr).insert(getCurCol(), in);
 		incrementCurCol(4);
+		getUndo()->submit(Undo::Action::INSERT, getCurRow(), getCurCol(), '\t');	// \t is represented by four spaces		!!!
 	}
 	else
 	{
 		(*m_curPosPtr).insert(getCurCol(), 1, ch);
 		incrementCurCol(1);
+		getUndo()->submit(Undo::Action::INSERT, getCurRow(), getCurCol(), ch);
 	}
-// PUSH CH INTO UNDO									!!!
 }
 
 // O(L) where L is the length of the line of text.
 // Command must not have a runtime that depends on the num of lines being edited
 void StudentTextEditor::enter() {
+	getUndo()->submit(Undo::Action::SPLIT, getCurRow(), getCurCol());
+
 	// If current editing pos is just past end of last line, add a new empty line
 	if (getCurRow() == getLastPositionOfText().m_row && getCurCol() == getLastPositionOfText().m_col)
 	{
-		m_text.push_back("\n");
+		m_text.push_back("");
 		m_totalLines++;
 		m_curPosPtr++;
-// PUSH \n INTO UNDO									!!!
 	}
 	else if (getCurCol() == 0)
 	{
-		m_text.insert(m_curPosPtr, "\n");
+		m_text.insert(m_curPosPtr, "");
 		m_totalLines++;
-// PUSH \n INTO UNDO									!!!
 	}
 	else
 	{
@@ -248,7 +253,6 @@ void StudentTextEditor::enter() {
 		// Split lines
 		m_text.insert(m_curPosPtr, s1);
 		(*m_curPosPtr) = s2;
-// PUSH \n INTO UNDO									!!!
 	}
 	// shift down
 	incrementCurRow(1);
@@ -306,5 +310,67 @@ int StudentTextEditor::getLines(int startRow, int numRows, std::vector<std::stri
 }
 
 void StudentTextEditor::undo() {
-	// TODO
+	int count, row, col;
+	string text;
+	Undo::Action operation = getUndo()->get(row, col, count, text);
+
+	switch (operation)
+	{
+	case Undo::Action::INSERT:
+		getToRow(row);
+		setCurCol(col);
+		(*m_curPosPtr).insert(getCurCol(), text);
+		break;
+	case Undo::Action::DELETE:
+		getToRow(row);
+		setCurCol(col);
+		(*m_curPosPtr).erase(getCurCol(), getCurCol() + count);		// O(L)
+		break;
+	case Undo::Action::JOIN:
+	{
+		getToRow(row);
+		setCurCol(col);
+
+		auto it = m_curPosPtr;
+		it++;
+		(*m_curPosPtr) += (*it);	// O(L1 + L2)
+		m_text.erase(it);			// O(L2)
+		m_totalLines--;
+		break;
+	}
+	case Undo::Action::SPLIT:
+	{
+		getToRow(row);
+		setCurCol(col);
+
+		// Split text
+		int size = (*m_curPosPtr).size();		// O(1) I think
+		string s1 = (*m_curPosPtr).substr(0, getCurCol());		// O(L)
+		string s2 = (*m_curPosPtr).substr(getCurCol());		// O(L)
+
+		// Split lines
+		m_text.insert(m_curPosPtr, s1);
+		(*m_curPosPtr) = s2;
+		break;
+	}
+	case Undo::Action::ERROR:
+		break;
+	}
+}
+
+void StudentTextEditor::getToRow(int row)
+{
+	while (getCurRow() != row)
+	{
+		if (row > getCurRow())
+		{
+			m_curPosPtr++;
+			incrementCurRow(1);
+		}
+		else if (row < getCurRow())
+		{
+			m_curPosPtr--;
+			incrementCurRow(-1);
+		}
+	}
 }

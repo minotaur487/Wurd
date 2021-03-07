@@ -47,6 +47,7 @@ private:
 	void setCurRow(int pos) { m_curPos.m_row = pos; }
 	void setCurCol(int pos) { m_curPos.m_col = pos; }
 	void executeUpDownEdgeCase(int curCol);
+	void getToRow(int row);
 
 		// Functions that get
 	int getCurRow() const { return m_curPos.m_row; }
