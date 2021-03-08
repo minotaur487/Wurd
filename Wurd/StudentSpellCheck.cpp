@@ -12,7 +12,17 @@ SpellCheck* createSpellCheck()
 }
 
 StudentSpellCheck::~StudentSpellCheck() {
-	// implement an inorder traversal i think to delete everything			!!!
+	cleanUp(root);		// not certain this cleans up properly			!!!
+}
+
+void StudentSpellCheck::cleanUp(trieNode* cur)
+{
+	if (cur == nullptr)
+		return;
+
+	for (int i = 0; i < 28; i++)
+		cleanUp(cur->variation[i]);
+	delete cur;
 }
 
 // O(N) N is num of lines in dict. Assume that upper bound of length of input line is constant
@@ -38,14 +48,17 @@ bool StudentSpellCheck::load(std::string dictionaryFile) {
 				if (isalpha(line[i]))
 				{
 					char ch = tolower(line[i]);
-					int res = ch - 'a';
-					if (ptr->variation[res] == nullptr)
+					int pos = ch - 'a';
+					if (ptr->variation[pos] == nullptr)
 					{
-						ptr->variation[res] = new trieNode;
-						ptr = ptr->variation[res];
+						ptr->variation[pos] = new trieNode;
+						ptr = ptr->variation[pos];
 					}
 					else
+					{
+						ptr = ptr->variation[pos];
 						continue;
+					}
 				}
 				else if (line[i] == '\'')
 				{
@@ -61,9 +74,110 @@ bool StudentSpellCheck::load(std::string dictionaryFile) {
 }
 
 bool StudentSpellCheck::spellCheck(std::string word, int max_suggestions, std::vector<std::string>& suggestions) {
-	return false; // TODO
+	// go through each character in word
+	if (isValidWord(word))		// O(L)
+		return true;
+
+	suggestions.clear();			// find out time complexity					!!!
+	
+	string possibleSuggestion;
+	for (int i = 0; i < word.length(); i++)		// O(L * 27 * L)
+	{
+		for (int j = 0; j < 27; j++)
+		{
+			if (suggestions.size() == max_suggestions)
+				return false;
+
+			possibleSuggestion = word;
+			char letter = 'a' + j;
+			word[i] = letter;
+			if (isValidWord(possibleSuggestion))
+				suggestions.push_back(possibleSuggestion);
+		}
+	}
+	return false;
+}
+
+// O(L)
+bool StudentSpellCheck::isValidWord(const string& word) const
+{
+	if (word.length() <= 0)
+		return false;
+
+	trieNode* ptr = root;
+	bool isValid = true;
+
+	for (auto ch : word)
+	{
+		// check for apostrophe
+		if (ch == '\'' && ptr->variation[26] != nullptr)
+			ptr = ptr->variation[26];
+		else
+		{ 
+			isValid = false;
+			break;
+		}
+
+		// check current letter
+		char cur = tolower(ch);
+		int pos = cur - 'a';
+		if (ptr->variation[pos] != nullptr)
+		{
+			ptr = ptr->variation[pos];
+		}
+		else
+		{
+			isValid = false;
+			break;
+		}
+	}
+	if (isValid && ptr->variation[27] != nullptr)
+		return true;
+	return false;
 }
 
 void StudentSpellCheck::spellCheckLine(const std::string& line, std::vector<SpellCheck::Position>& problems) {
-	// TODO
+	problems.clear();
+	
+	string temp;
+	int start, pos;
+	start = pos = 0;
+	vector<string> words;
+	vector <SpellCheck::Position> positions;
+	bool newWord = false;
+	for (auto ch : line)			// O(S)
+	{
+		if (!isalpha(ch) && ch != '\'')
+		{
+			SpellCheck::Position misspelledWord;
+			misspelledWord.start = start;
+			misspelledWord.end = pos;
+			positions.push_back(misspelledWord);
+
+			words.push_back(temp);
+			temp.clear();
+			newWord = true;
+		}
+		else
+		{
+			temp += ch;
+			if (newWord)
+			{
+				start = pos;
+				newWord = false;
+			}
+		}
+		pos++;
+	}
+
+	// O(W * L)
+	for (int i = 0; i < words.size(); i++)
+	{
+		bool isValid = isValidWord(words[i]);
+		if (!isValid)
+		{
+			problems.push_back(positions[i]);	// O(1)
+		}
+	}
 }
+
