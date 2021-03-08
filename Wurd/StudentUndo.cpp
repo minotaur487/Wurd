@@ -70,6 +70,7 @@ StudentUndo::Action StudentUndo::get(int &row, int &col, int& count, std::string
 	case JOIN:
 		return SPLIT;
 	}
+	return ERROR;
 }
 
 void StudentUndo::clear() 
