@@ -15,7 +15,7 @@ StudentSpellCheck::~StudentSpellCheck() {
 	cleanUp(root);		// not certain this cleans up properly			!!!
 }
 
-void StudentSpellCheck::cleanUp(trieNode* cur)
+void StudentSpellCheck::cleanUp(trieNode*& cur)
 {
 	if (cur == nullptr)
 		return;
@@ -23,6 +23,7 @@ void StudentSpellCheck::cleanUp(trieNode* cur)
 	for (int i = 0; i < 28; i++)
 		cleanUp(cur->variation[i]);
 	delete cur;
+	cur = nullptr;
 }
 
 // O(N) N is num of lines in dict. Assume that upper bound of length of input line is constant
@@ -35,6 +36,8 @@ bool StudentSpellCheck::load(std::string dictionaryFile) {
 		return false;
 	}
 	{
+		cleanUp(root);
+		root = new trieNode;
 		// load text ... should be O(N)
 		string line;
 		trieNode* ptr = root;

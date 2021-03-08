@@ -40,22 +40,20 @@ bool StudentTextEditor::load(std::string file) {
 		return false;
 	}
 	{
-		// reset existing file, check if i have to do this if new
+		// should be O(M)
 		reset();
 
 		// load text ... should be O(N)
 		string line;
 		while (getline(infile, line))	// getline returns infile and has a deliminator of \n
 		{
-			int size = line.size();
-			if (size != 0 && line[size - 1] == '\r')	// Avoid deleting because I have to iterate there and erasing reinitializes a vector?
+			if (!(line.empty()) && line.back() == '\r')
 			{
-				line[size - 1] = '\0';	// See if I get this right			!!!
+				line.pop_back();
 			}
 			m_text.push_back(line);
 		}
 
-		// should be O(M)
 		setFirstPos();
 		setCurCol(0);
 		setCurRow(0);
