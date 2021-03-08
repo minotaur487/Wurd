@@ -73,7 +73,8 @@ bool StudentSpellCheck::load(std::string dictionaryFile) {
 				}
 			}
 			// indicate end of word
-			ptr->variation[27] = new trieNode;
+			if (ptr->variation[27] == nullptr)
+				ptr->variation[27] = new trieNode;
 		}
 		return true;
 	}
