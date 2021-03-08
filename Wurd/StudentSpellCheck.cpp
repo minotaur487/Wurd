@@ -80,17 +80,22 @@ bool StudentSpellCheck::spellCheck(std::string word, int max_suggestions, std::v
 
 	suggestions.clear();			// find out time complexity					!!!
 
+	string transformedWord;
+	for (auto x : word)
+	{
+		transformedWord += tolower(x);
+	}
 	string possibleSuggestion;
-	for (int i = 0; i < word.length(); i++)		// O(L * 27 * L)
+	for (int i = 0; i < transformedWord.length(); i++)		// O(L * 27 * L)
 	{
 		for (int j = 0; j < 27; j++)
 		{
 			if (suggestions.size() == max_suggestions)
 				return false;
 
-			possibleSuggestion = word;
+			possibleSuggestion = transformedWord;
 			char letter = 'a' + j;
-			word[i] = letter;
+			possibleSuggestion[i] = letter;
 			if (isValidWord(possibleSuggestion))
 				suggestions.push_back(possibleSuggestion);
 		}
@@ -146,20 +151,29 @@ void StudentSpellCheck::spellCheckLine(const std::string& line, std::vector<Spel
 	{
 		if (!isalpha(ch) && ch != '\'')
 		{
+			if (temp.length() == 0)
+			{
+				pos++;
+				start = pos;
+				continue;
+			}
 			bool isValid = isValidWord(temp);
 			if (!isValid)
 			{
 				SpellCheck::Position misspelledWord;
 				misspelledWord.start = start;
-				misspelledWord.end = pos;
+				misspelledWord.end = pos - 1;
 				problems.push_back(misspelledWord);
 			}
+			pos++;
 			start = pos;
 			temp.clear();
 		}
 		else
+		{
 			temp += ch;
-		pos++;
+			pos++;
+		}
 	}
 	if (temp.length() != 0)
 	{

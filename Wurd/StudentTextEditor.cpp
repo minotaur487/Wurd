@@ -19,7 +19,6 @@ StudentTextEditor::StudentTextEditor(Undo* undo)
 {
 	m_text.push_back("");		// deals with typing in waiting screen
 	m_curPosPtr = m_text.begin();
-	m_totalLines = 1;
 }
 
 // O(N) time where N is the number of lines in the file currently being edited.
@@ -54,7 +53,6 @@ bool StudentTextEditor::load(std::string file) {
 				line[size - 1] = '\0';	// See if I get this right			!!!
 			}
 			m_text.push_back(line);
-			m_totalLines++;
 		}
 
 		// should be O(M)
@@ -163,17 +161,16 @@ void StudentTextEditor::move(Dir dir) {
 
 void StudentTextEditor::del() {
 	int cCol = getCurCol();
-	if (cCol == (*m_curPosPtr).size())
+	if (cCol == getLastPositionOfText().m_col && getCurRow() == getLastPositionOfText().m_row)
+		return;
+	else if (cCol == (*m_curPosPtr).size())
 	{
 		auto it = m_curPosPtr;
 		it++;
 		(*m_curPosPtr) += (*it);	// O(L1 + L2)
 		m_text.erase(it);			// O(L2)
-		m_totalLines--;
 		getUndo()->submit(Undo::Action::JOIN, getCurRow(), cCol);
 	}
-	else if (cCol == getLastPositionOfText().m_col && getCurRow() == getLastPositionOfText().m_row)
-		return;
 	else
 	{
 		getUndo()->submit(Undo::Action::DELETE, getCurRow(), cCol, (*m_curPosPtr)[cCol]);
@@ -197,7 +194,6 @@ void StudentTextEditor::backspace() {
 		// merge lines
 		(*m_curPosPtr) += (*it);	// O(L2 + L1)
 		m_text.erase(it);			// O(L1)
-		m_totalLines--;
 
 		getUndo()->submit(Undo::Action::JOIN, getCurRow(), getCurCol());
 	}
@@ -236,13 +232,11 @@ void StudentTextEditor::enter() {
 	if (getCurRow() == getLastPositionOfText().m_row && getCurCol() == getLastPositionOfText().m_col)
 	{
 		m_text.push_back("");
-		m_totalLines++;
 		m_curPosPtr++;
 	}
 	else if (getCurCol() == 0)
 	{
 		m_text.insert(m_curPosPtr, "");
-		m_totalLines++;
 	}
 	else
 	{
@@ -337,7 +331,6 @@ void StudentTextEditor::undo() {
 		it++;
 		(*m_curPosPtr) += (*it);	// O(L1 + L2)
 		m_text.erase(it);			// O(L2)
-		m_totalLines--;
 		break;
 	}
 	case Undo::Action::SPLIT:

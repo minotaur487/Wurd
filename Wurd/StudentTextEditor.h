@@ -37,8 +37,6 @@ private:
 	std::list<std::string> m_text;
 	std::list<std::string>::iterator m_curPosPtr;
 	Coord m_curPos;
-	int m_totalLines;	// Is initialization 1 or 0 lines
-
 
 		// Functions that do
 	void setFirstPos() { m_curPosPtr = m_text.begin(); }
