@@ -79,7 +79,7 @@ bool StudentSpellCheck::spellCheck(std::string word, int max_suggestions, std::v
 		return true;
 
 	suggestions.clear();			// find out time complexity					!!!
-	
+
 	string possibleSuggestion;
 	for (int i = 0; i < word.length(); i++)		// O(L * 27 * L)
 	{
@@ -112,8 +112,8 @@ bool StudentSpellCheck::isValidWord(const string& word) const
 		// check for apostrophe
 		if (ch == '\'' && ptr->variation[26] != nullptr)
 			ptr = ptr->variation[26];
-		else
-		{ 
+		else if (ch == '\'')
+		{
 			isValid = false;
 			break;
 		}
@@ -138,46 +138,39 @@ bool StudentSpellCheck::isValidWord(const string& word) const
 
 void StudentSpellCheck::spellCheckLine(const std::string& line, std::vector<SpellCheck::Position>& problems) {
 	problems.clear();
-	
+
 	string temp;
 	int start, pos;
 	start = pos = 0;
-	vector<string> words;
-	vector <SpellCheck::Position> positions;
-	bool newWord = false;
 	for (auto ch : line)			// O(S)
 	{
 		if (!isalpha(ch) && ch != '\'')
 		{
+			bool isValid = isValidWord(temp);
+			if (!isValid)
+			{
+				SpellCheck::Position misspelledWord;
+				misspelledWord.start = start;
+				misspelledWord.end = pos;
+				problems.push_back(misspelledWord);
+			}
+			start = pos;
+			temp.clear();
+		}
+		else
+			temp += ch;
+		pos++;
+	}
+	if (temp.length() != 0)
+	{
+		bool isValid = isValidWord(temp);
+		if (!isValid)
+		{
 			SpellCheck::Position misspelledWord;
 			misspelledWord.start = start;
 			misspelledWord.end = pos;
-			positions.push_back(misspelledWord);
-
-			words.push_back(temp);
+			problems.push_back(misspelledWord);
 			temp.clear();
-			newWord = true;
-		}
-		else
-		{
-			temp += ch;
-			if (newWord)
-			{
-				start = pos;
-				newWord = false;
-			}
-		}
-		pos++;
-	}
-
-	// O(W * L)
-	for (int i = 0; i < words.size(); i++)
-	{
-		bool isValid = isValidWord(words[i]);
-		if (!isValid)
-		{
-			problems.push_back(positions[i]);	// O(1)
 		}
 	}
 }
-

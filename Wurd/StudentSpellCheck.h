@@ -14,9 +14,6 @@ public:
 	bool spellCheck(std::string word, int maxSuggestions, std::vector<std::string>& suggestions);
 	void spellCheckLine(const std::string& line, std::vector<Position>& problems);
 
-	//testsel;sa;fj;kdsajf;lkjsa;lfjsa;lkjfl
-	void printout();
-	//asdfsalkfajslkf
 private:
 	struct trieNode
 	{
