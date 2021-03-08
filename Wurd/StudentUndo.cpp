@@ -25,6 +25,8 @@ void StudentUndo::submit(const Action action, int row, int col, char ch)
 			return;
 		break;
 	}
+	default:
+		break;
 	}
 	m_undoStack.push(newChange);	// O(1)
 }
@@ -69,8 +71,9 @@ StudentUndo::Action StudentUndo::get(int &row, int &col, int& count, std::string
 		return JOIN;
 	case JOIN:
 		return SPLIT;
+	default:
+		return ERROR;
 	}
-	return ERROR;
 }
 
 void StudentUndo::clear() 
