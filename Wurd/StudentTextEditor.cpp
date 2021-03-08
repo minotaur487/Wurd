@@ -48,7 +48,7 @@ bool StudentTextEditor::load(std::string file) {
 		while (getline(infile, line))	// getline returns infile and has a deliminator of \n
 		{
 			int size = line.size();
-			if (size != 0 && line[size - 2] == '\r')	// Avoid deleting because I have to iterate there and erasing reinitializes a vector?
+			if (size != 0 && line[size - 1] == '\r')	// Avoid deleting because I have to iterate there and erasing reinitializes a vector?
 			{
 				line[size - 1] = '\0';	// See if I get this right			!!!
 			}

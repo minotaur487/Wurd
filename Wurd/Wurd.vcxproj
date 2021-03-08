@@ -20,15 +20,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="StudentSpellCheck.cpp" />
     <ClCompile Include="StudentTextEditor.cpp" />
     <ClCompile Include="StudentUndo.cpp" />
-    <ClCompile Include="StudentSpellCheck.cpp" />
     <ClCompile Include="tester.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="StudentSpellCheck.h" />
     <ClInclude Include="StudentTextEditor.h" />
     <ClInclude Include="StudentUndo.h" />
-    <ClInclude Include="StudentSpellCheck.h" />
     <ClInclude Include="TextEditor.h" />
     <ClInclude Include="Undo.h" />
     <ClInclude Include="SpellCheck.h" />
