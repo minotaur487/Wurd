@@ -65,7 +65,10 @@ bool StudentSpellCheck::load(std::string dictionaryFile) {
 				}
 				else if (line[i] == '\'')
 				{
-					ptr->variation[26] = new trieNode;
+					if (ptr->variation[26] == nullptr)
+					{
+						ptr->variation[26] = new trieNode;
+					}
 					ptr = ptr->variation[26];
 				}
 			}
@@ -119,8 +122,11 @@ bool StudentSpellCheck::isValidWord(const string& word) const
 	{
 		// check for apostrophe
 		if (ch == '\'' && ptr->variation[26] != nullptr)
+		{
 			ptr = ptr->variation[26];
-		else if (ch == '\'')
+			continue;
+		}
+		else if (ch == '\'' && ptr->variation[26] == nullptr)
 		{
 			isValid = false;
 			break;
