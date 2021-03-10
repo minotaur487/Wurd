@@ -25,11 +25,8 @@ StudentTextEditor::StudentTextEditor(Undo* undo)
 // I believe destructing an std linked list is O(N)
 StudentTextEditor::~StudentTextEditor()
 {
-	// TODO
 }
 
-// loads but I can't tell if the carriage return character is removed							!!!
-// I think getLines is supposed to result in the displace but I am not sure						!!!
 // O(M+N) M is num of lines in editor currently and N is num of lines in new file being loaded
 bool StudentTextEditor::load(std::string file) {
 	ifstream infile(file);
@@ -41,7 +38,6 @@ bool StudentTextEditor::load(std::string file) {
 	}
 	else
 	{
-		// should be O(M)
 		reset();
 
 		// load text ... should be O(N)
@@ -103,7 +99,7 @@ void StudentTextEditor::move(Dir dir) {
 			return;
 		incrementCurRow(-1);
 		m_curPosPtr--;
-		int cCol = getCurCol();
+		cCol = getCurCol();
 		executeUpDownEdgeCase(cCol);
 		break;
 	}
@@ -113,7 +109,7 @@ void StudentTextEditor::move(Dir dir) {
 			return;
 		m_curPosPtr++;
 		incrementCurRow(1);
-		int cCol = getCurCol();
+		cCol = getCurCol();
 		executeUpDownEdgeCase(cCol);
 		break;
 	}

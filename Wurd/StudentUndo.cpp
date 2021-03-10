@@ -37,31 +37,30 @@ StudentUndo::Action StudentUndo::get(int &row, int &col, int& count, std::string
 	if (m_undoStack.empty())
 		return ERROR;
 
-	change top = m_undoStack.top();
-	if (top.m_action == INSERT)
-		count = top.m_changes.size();
+	if (m_undoStack.top().m_action == INSERT)
+		count = m_undoStack.top().m_changes.size();
 	else
 		count = 1;
 	
-	row = top.m_row;
-	if (top.m_action == INSERT)		// row and column requirements sound contradictory ffs		!!!
+	row = m_undoStack.top().m_row;
+	if (m_undoStack.top().m_action == INSERT)		// row and column requirements sound contradictory ffs		!!!
 	{
-		col = top.m_col - count;
+		col = m_undoStack.top().m_col - count;
 	}
 	else
 	{
-		col = top.m_col;
+		col = m_undoStack.top().m_col;
 	}
 
-	if (top.m_action == DELETE)
-		text = top.m_changes;	// O(L)
+	if (m_undoStack.top().m_action == DELETE)
+		text = m_undoStack.top().m_changes;	// O(L)
 	else
 		text = "";
 
 	// undo operation removed
 	m_undoStack.pop();
 
-	switch (top.m_action)
+	switch (m_undoStack.top().m_action)
 	{
 	case INSERT:
 		return DELETE;
