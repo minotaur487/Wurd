@@ -39,6 +39,7 @@ bool StudentTextEditor::load(std::string file) {
 		cerr << "Bad state, file can't load" << endl;
 		return false;
 	}
+	else
 	{
 		// should be O(M)
 		reset();

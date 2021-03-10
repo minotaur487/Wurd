@@ -26,15 +26,14 @@ void StudentSpellCheck::cleanUp(trieNode*& cur)
 	cur = nullptr;
 }
 
-// O(N) N is num of lines in dict. Assume that upper bound of length of input line is constant
 bool StudentSpellCheck::load(std::string dictionaryFile) {
 	ifstream infile(dictionaryFile);
-	// Should go through whole dictionary
 	if (!infile)
 	{
 		cerr << "Bad state, dictionary can't load" << endl;
 		return false;
 	}
+	else
 	{
 		cleanUp(root);
 		root = new trieNode;
