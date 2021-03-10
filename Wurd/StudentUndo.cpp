@@ -56,11 +56,12 @@ StudentUndo::Action StudentUndo::get(int &row, int &col, int& count, std::string
 		text = m_undoStack.top().m_changes;	// O(L)
 	else
 		text = "";
+	StudentUndo::Action operation = m_undoStack.top().m_action;
 
 	// undo operation removed
 	m_undoStack.pop();
 
-	switch (m_undoStack.top().m_action)
+	switch (operation)
 	{
 	case INSERT:
 		return DELETE;
