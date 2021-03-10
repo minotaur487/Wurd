@@ -92,7 +92,6 @@ bool StudentSpellCheck::spellCheck(std::string word, int max_suggestions, std::v
 	{
 		transformedWord += tolower(x);
 	}
-	string possibleSuggestion;
 	for (int i = 0; i < transformedWord.length(); i++)		// O(L * 27 * L)
 	{
 		for (int j = 0; j < 27; j++)
@@ -100,11 +99,12 @@ bool StudentSpellCheck::spellCheck(std::string word, int max_suggestions, std::v
 			if (suggestions.size() == max_suggestions)
 				return false;
 
-			possibleSuggestion = transformedWord;
 			char letter = 'a' + j;
-			possibleSuggestion[i] = letter;
-			if (isValidWord(possibleSuggestion))
-				suggestions.push_back(possibleSuggestion);
+			char oldLetter = transformedWord[i];
+			transformedWord[i] = letter;
+			if (isValidWord(transformedWord))
+				suggestions.push_back(transformedWord);
+			transformedWord[i] = oldLetter;
 		}
 	}
 	return false;
@@ -152,49 +152,54 @@ bool StudentSpellCheck::isValidWord(const string& word) const
 }
 
 void StudentSpellCheck::spellCheckLine(const std::string& line, std::vector<SpellCheck::Position>& problems) {
-	problems.clear();
+	problems.clear();	// O(oldP)
 
-	string temp;
-	int start, pos;
-	start = pos = 0;
+	int start, end;
+	start = end = 0;
+	int numOfWords = 0;
+	vector<SpellCheck::Position> words;
 	for (auto ch : line)			// O(S)
 	{
-		if (!isalpha(ch) && ch != '\'')
+		if ((!isalpha(ch) && ch != '\''))
 		{
-			if (temp.length() == 0)
+			//if (!isalpha(ch) && ch != '\'')
+			//	end++;
+			if (end != start)
 			{
-				pos++;
-				start = pos;
-				continue;
+				SpellCheck::Position potentialProblem;
+				potentialProblem.start = start;
+				potentialProblem.end = end;
+				words.push_back(potentialProblem);
+				numOfWords++;
 			}
-			bool isValid = isValidWord(temp);
-			if (!isValid)
-			{
-				SpellCheck::Position misspelledWord;
-				misspelledWord.start = start;
-				misspelledWord.end = pos - 1;
-				problems.push_back(misspelledWord);
-			}
-			pos++;
-			start = pos;
-			temp.clear();
+			end++;
+			start = end;
+			continue;
 		}
-		else
-		{
-			temp += ch;
-			pos++;
-		}
+		end++;
 	}
-	if (temp.length() != 0)
+	if (end == line.length())
 	{
-		bool isValid = isValidWord(temp);
+		SpellCheck::Position potentialProblem;
+		potentialProblem.start = start;
+		potentialProblem.end = end;
+		words.push_back(potentialProblem);
+		numOfWords++;
+	}
+
+	int counter = 0;
+	string curWord;
+	// O(W(L+L))
+	while (counter < numOfWords)	// O(W)
+	{
+		int length = words[counter].end - words[counter].start;
+		curWord = line.substr(words[counter].start, length);	// O(L)
+		bool isValid = isValidWord(curWord);	// O(L)
+		words[counter].end--;
 		if (!isValid)
 		{
-			SpellCheck::Position misspelledWord;
-			misspelledWord.start = start;
-			misspelledWord.end = pos;
-			problems.push_back(misspelledWord);
-			temp.clear();
+			problems.push_back(words[counter]);
 		}
+		counter++;
 	}
 }
