@@ -2,7 +2,6 @@
 #define STUDENTSPELLCHECK_H_
 
 #include "SpellCheck.h"
-
 #include <string>
 #include <vector>
 

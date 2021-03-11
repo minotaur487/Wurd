@@ -1,7 +1,6 @@
 #include "StudentSpellCheck.h"
 #include <string>
 #include <vector>
-
 #include <fstream>
 #include <iostream>
 using namespace std;
@@ -167,6 +166,11 @@ bool StudentSpellCheck::isValidWord(const string& word) const
 	// for each character
 	for (auto ch : word)
 	{
+		// should skip characters that have accents etc.
+		if (ch > 127 || ch < 0)
+		{
+			continue;
+		}
 		// if character is a apostrophe, check if it's supposed to be there
 		if (ch == '\'' && ptr->variation[26] != nullptr)
 		{
@@ -214,6 +218,12 @@ void StudentSpellCheck::spellCheckLine(const std::string& line, std::vector<Spel
 	// for each character in the line
 	for (auto ch : line)
 	{
+		// should skip characters that have accents etc.
+		if (ch > 127 || ch < 0)
+		{
+			end++;
+			continue;
+		}
 		// if the character is not a letter or apostrophe
 		if ((!isalpha(ch) && ch != '\''))
 		{

@@ -2,7 +2,6 @@
 #include "Undo.h"
 #include <string>
 #include <vector>
-
 #include <list>
 #include <fstream>
 #include <iostream>
