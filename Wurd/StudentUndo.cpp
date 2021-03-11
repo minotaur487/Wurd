@@ -1,49 +1,65 @@
 #include "StudentUndo.h"
 #include <stack>
 
+
+/*---------------------------------------------------------------
+*		create StudentUndo object
+---------------------------------------------------------------*/
 Undo* createUndo()
 {
 	return new StudentUndo;
 }
 
-// O(1) avg case, may increase up to O(current line length where operation occurred) infrequently
+
+/*---------------------------------------------------------------
+*		Allows for information about a change/operation
+*		to be saved
+---------------------------------------------------------------*/
 void StudentUndo::submit(const Action action, int row, int col, char ch)
 {
-	change newChange = change(action, row, col, ch);	// what if user deletes a couple times, inserts, undos, then deletes?		!!!
+	change newChange = change(action, row, col, ch);
 	switch (action)
 	{
-	// need to implement accounting for deleting and backspacing at end of line			!!!
+	// if action was delete, try to batch it
 	case DELETE:
 	{
-		if (batchIfApplicable(newChange))		// O(L) where L is length of top.m_changes
+		if (batchIfApplicable(newChange))
 			return;
 		break;
 	}
+	// if action was insert, try to batch it
 	case INSERT:
 	{
-		if (batchIfApplicable(newChange))	// O(L) where L is length of top.m_changes
+		if (batchIfApplicable(newChange))
 			return;
 		break;
 	}
 	default:
 		break;
 	}
-	m_undoStack.push(newChange);	// O(1)
+	// otherwise push change onto stack
+	m_undoStack.push(newChange);
 }
 
-// O(1) avg case, may increase to O(L of deleted char that need to be restored) for restoration cases
+
+/*---------------------------------------------------------------
+*		Gets information about the last change/operation
+---------------------------------------------------------------*/
 StudentUndo::Action StudentUndo::get(int &row, int &col, int& count, std::string& text) 
 {
+	// return error if empty
 	if (m_undoStack.empty())
 		return ERROR;
 
+	// If action to undo was insert, return the number of characters to delete
 	if (m_undoStack.top().m_action == INSERT)
 		count = m_undoStack.top().m_changes.size();
 	else
 		count = 1;
 	
+	// Return proper editing positions
 	row = m_undoStack.top().m_row;
-	if (m_undoStack.top().m_action == INSERT)		// row and column requirements sound contradictory ffs		!!!
+	if (m_undoStack.top().m_action == INSERT)
 	{
 		col = m_undoStack.top().m_col - count;
 	}
@@ -52,15 +68,17 @@ StudentUndo::Action StudentUndo::get(int &row, int &col, int& count, std::string
 		col = m_undoStack.top().m_col;
 	}
 
+	// if the action to undo was delete, return the text deleted
 	if (m_undoStack.top().m_action == DELETE)
 		text = m_undoStack.top().m_changes;	// O(L)
 	else
 		text = "";
 	StudentUndo::Action operation = m_undoStack.top().m_action;
 
-	// undo operation removed
+	// operation removed
 	m_undoStack.pop();
 
+	// return proper undo operation
 	switch (operation)
 	{
 	case INSERT:
@@ -76,9 +94,13 @@ StudentUndo::Action StudentUndo::get(int &row, int &col, int& count, std::string
 	}
 }
 
+
+/*---------------------------------------------------------------
+*		Clears out the entire undo stack
+---------------------------------------------------------------*/
 void StudentUndo::clear() 
 {
-	while (!m_undoStack.empty())	// O(N)
+	while (!m_undoStack.empty())
 	{
 		m_undoStack.pop();
 	}
