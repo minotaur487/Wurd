@@ -25,8 +25,7 @@ public:
 	void undo();
 
 private:
-	// (0,0) top left
-	struct Coord
+	struct Coord	// (0,0) top left
 	{
 		Coord(int col, int row) : m_row(row), m_col(col) {}
 		int m_row;
@@ -37,6 +36,8 @@ private:
 	std::list<std::string> m_text;
 	std::list<std::string>::iterator m_curPosPtr;
 	Coord m_curPos;
+
+			// Helper functions
 
 		// Functions that do
 	void setFirstPos() { m_curPosPtr = m_text.begin(); }

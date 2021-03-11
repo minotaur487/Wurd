@@ -35,17 +35,11 @@ private:
 		Action m_action;
 	};
 
-		// functions that do
+		// helper functions
 	void addToChanges(change& curBatch, std::string& in) { curBatch.m_changes += in; }
 	bool batchIfApplicable(change& newChange);
 
-		// functions that get
-	int getChangeRow(const change& curChange) const { return curChange.m_row; }
-	int getChangeCol(const change& curChange) const { return curChange.m_col; }
-	Action getChangeAction(const change& curChange) const { return curChange.m_action; }
-	std::string getChanges(const change& curChange) const { return curChange.m_changes; }
-
-		// data members
+		// data member
 	std::stack<change> m_undoStack;
 };
 
@@ -58,23 +52,22 @@ bool StudentUndo::batchIfApplicable(StudentUndo::change& newChange)
 		int colInsertDiff = newChange.m_col - top.m_col;
 		int colBackspaceDiff = top.m_col - newChange.m_col;
 
-		if (top.m_action == DELETE && newChange.m_action == DELETE && colBackspaceDiff == 1)
+		bool backspaceBool = top.m_action == DELETE && newChange.m_action == DELETE && colBackspaceDiff == 1;
+		bool insertBool = newChange.m_action == INSERT && top.m_action == INSERT && colInsertDiff == 1;
+
+		// if the most recent operation is consecutive backspace or a consecutive insert
+		if (insertBool || backspaceBool)
 		{
+			// merge new and previous operations
 			addToChanges(newChange, m_undoStack.top().m_changes);
 			m_undoStack.pop();
 			m_undoStack.push(newChange);
 			return true;
 		}
+		// if the most recent operation is delete and the new operation is a consecutive delete
 		else if (top == newChange)
 		{
 			addToChanges(m_undoStack.top(), newChange.m_changes);
-			return true;
-		}
-		else if (newChange.m_action == INSERT && top.m_action == INSERT && colInsertDiff == 1)
-		{
-			addToChanges(newChange, m_undoStack.top().m_changes);
-			m_undoStack.pop();
-			m_undoStack.push(newChange);
 			return true;
 		}
 	}

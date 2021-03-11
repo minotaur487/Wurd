@@ -21,8 +21,10 @@ private:
 		trieNode* variation[28];
 	};
 
+		// data members
 	trieNode* root;
 
+		// helper functions
 	bool isValidWord(const std::string& word) const;
 	void cleanUp(trieNode*& root);
 };
